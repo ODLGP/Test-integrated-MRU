@@ -104,6 +104,12 @@ function mruOnData(event) {
   const chunk = decoder.decode(value);
   console.log('MRU RAW HEX:', rawBytes);
   console.log('MRU RAW TEXT:', JSON.stringify(chunk));
+  // Vidljivi debug na ekranu mobitela
+  var dbg = document.getElementById('ble-debug');
+  if (dbg) {
+    dbg.style.display = 'block';
+    dbg.textContent = 'HEX: ' + rawBytes + '\nTEXT: ' + JSON.stringify(chunk);
+  }
   window.mruBLE.buffer += chunk;
 
   // Pokušaj parsirati svaki kompletan redak
@@ -213,6 +219,15 @@ function mruUpdateStatus(msg, state) {
 
 // Auto-show BLE panel when vent form opens (MutationObserver)
 document.addEventListener('DOMContentLoaded', function() {
+  // Dodaj debug div u BLE panel
+  var panel = document.getElementById('ble-live-panel');
+  if (panel) {
+    var dbg = document.createElement('div');
+    dbg.id = 'ble-debug';
+    dbg.style.cssText = 'display:none;margin-top:10px;padding:8px;background:#fff3cd;border-radius:6px;font-size:11px;font-family:monospace;word-break:break-all;white-space:pre-wrap;color:#333;border:1px solid #ffc107;';
+    dbg.textContent = 'Čekam podatke...';
+    panel.appendChild(dbg);
+  }
   var ventForm = document.getElementById('vent-form');
   if (!ventForm) return;
   var observer = new MutationObserver(function(mutations) {
