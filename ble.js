@@ -67,6 +67,25 @@ async function mruConnect() {
 
     window.mruBLE.connected = true;
     mruUpdateStatus('Spojeno ✓ ' + (device.name || 'MRU'), 'connected');
+
+    // Pošalji wake-up komandu na WRITE char da pokrene streaming
+    try {
+      const rxChar = await service.getCharacteristic('49535343-8841-43f4-a8d4-ecbe34729bb3');
+      // Probaj različite wake-up komande
+      const cmds = [
+        new Uint8Array([0x01]),           // start
+        new Uint8Array([0x53]),           // 'S'
+        new Uint8Array([0x0D, 0x0A]),     // CR+LF
+        new Uint8Array([0x01, 0x00]),
+      ];
+      for (const cmd of cmds) {
+        try { await rxChar.writeValue(cmd); await new Promise(r => setTimeout(r, 300)); } catch(e) {}
+      }
+      console.log('Wake-up commands sent');
+    } catch(e) {
+      console.warn('Wake-up failed:', e);
+    }
+
     return true;
 
   } catch(e) {
