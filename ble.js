@@ -50,18 +50,19 @@ async function mruConnect() {
       window.mruBLE.txChar = await service.getCharacteristic(MRU_TX_UUID);
       await window.mruBLE.txChar.startNotifications();
       window.mruBLE.txChar.addEventListener('characteristicvaluechanged', mruOnData);
+      console.log('Subscribed to TX:', MRU_TX_UUID);
     } catch(e) {
-      // Ako TX UUID nije točan, probaj sve karakteristike s NOTIFY
-      const chars = await service.getCharacteristics();
-      for (const c of chars) {
-        if (c.properties.notify) {
-          window.mruBLE.txChar = c;
-          await c.startNotifications();
-          c.addEventListener('characteristicvaluechanged', mruOnData);
-          console.log('Using notify char:', c.uuid);
-          break;
-        }
-      }
+      console.warn('TX char failed:', e);
+    }
+
+    // Treća karakteristika - također NOTIFY
+    try {
+      const char3 = await service.getCharacteristic('49535343-4c8a-39b3-2f49-511cff073b7e');
+      await char3.startNotifications();
+      char3.addEventListener('characteristicvaluechanged', mruOnData);
+      console.log('Subscribed to char3');
+    } catch(e) {
+      console.warn('Char3 failed:', e);
     }
 
     window.mruBLE.connected = true;
@@ -97,8 +98,12 @@ function mruOnDisconnected() {
 // Parsiranje podataka s uređaja
 function mruOnData(event) {
   const value = event.target.value;
+  // Debug - pokaži raw bytes i tekst u konzoli
+  const rawBytes = Array.from(new Uint8Array(value.buffer)).map(b => b.toString(16).padStart(2,'0')).join(' ');
   const decoder = new TextDecoder('utf-8');
   const chunk = decoder.decode(value);
+  console.log('MRU RAW HEX:', rawBytes);
+  console.log('MRU RAW TEXT:', JSON.stringify(chunk));
   window.mruBLE.buffer += chunk;
 
   // Pokušaj parsirati svaki kompletan redak
