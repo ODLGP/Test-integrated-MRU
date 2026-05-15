@@ -152,6 +152,9 @@ function handleQRResult(text) {
   _qrWorking = false;
   if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
+  // Debug - pokaži raw tekst
+  document.getElementById('qr-status').textContent = 'RAW: ' + text.substring(0, 80);
+
   const values = mruParseQR(text);
   const count = Object.keys(values).length;
 
