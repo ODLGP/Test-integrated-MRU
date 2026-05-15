@@ -25,11 +25,17 @@ let _qrWorking = false;
 // Parsira MRU QR string i vraća objekt s vrijednostima
 function mruParseQR(text) {
   const result = {};
+  // Provjeri je li MRU format
+  if (!text.includes('MRU') && !text.includes(';38;') && !text.includes(';22;')) {
+    // Pokušaj svejedno parsirati
+    if (!text.includes(';')) return result;
+  }
   const parts = text.split(';');
-  for (let i = 0; i < parts.length - 1; i += 2) {
+  for (let i = 0; i < parts.length - 1; i++) {
     const id = parts[i].trim();
     const val = parts[i + 1].trim();
-    if (MRU_QR_MAP[id]) {
+    // Provjeri je li ID točno broj koji tražimo (ne dio većeg broja)
+    if (MRU_QR_MAP[id] !== undefined) {
       const num = parseFloat(val);
       if (!isNaN(num)) {
         result[MRU_QR_MAP[id].field] = num;
