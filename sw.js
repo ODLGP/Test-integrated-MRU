@@ -1,9 +1,11 @@
-const CACHE_NAME = 'mop-mjerenje-v58';
+const CACHE_NAME = 'mop-mjerenje-v59';
 const urlsToCache = [
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './ble.js',
+  './qrscan.js',
   // Slike uređaja
   './slike/uredjaji/GA5000.jpg',
   './slike/uredjaji/Optima-Biogas.png',
